@@ -256,7 +256,7 @@ class InstanceInfo(dict):
                   'num_cols', 'sp_rows', 'sp_cols', 'master_key']
 
     def __init__(self, res, change_orient=True, **kwargs):
-        kv_iter = ((key, kwargs[key]) for key in self.param_list)
+        kv_iter = ((key, kwargs.get(key, None)) for key in self.param_list)
         dict.__init__(self, kv_iter)
         self._resolution = res
         if 'params' in kwargs:
