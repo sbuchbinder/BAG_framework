@@ -253,7 +253,7 @@ class InstanceInfo(dict):
     """
 
     param_list = ['lib', 'cell', 'view', 'name', 'loc', 'orient', 'num_rows',
-                  'num_cols', 'sp_rows', 'sp_cols', 'master_key']
+                  'num_cols', 'sp_rows', 'sp_cols']
 
     def __init__(self, res, change_orient=True, **kwargs):
         kv_iter = ((key, kwargs[key]) for key in self.param_list)
@@ -261,6 +261,8 @@ class InstanceInfo(dict):
         self._resolution = res
         if 'params' in kwargs:
             self.params = kwargs['params']
+        if 'master_key' in kwargs:
+            self.master_key = kwargs['master_key']
 
         # skill/OA array before rotation, while we're doing the opposite.
         # this is supposed to fix it.
