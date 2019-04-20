@@ -1367,6 +1367,7 @@ class BagLayout(object):
             oa_layout = cybagoa.PyLayout(encoding)
 
             for obj in inst_tot_list:
+                obj.pop('master_key', None)
                 oa_layout.add_inst(**obj)
             for obj in rect_list:
                 oa_layout.add_rect(**obj)
