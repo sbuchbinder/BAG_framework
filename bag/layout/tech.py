@@ -100,6 +100,10 @@ class TechInfoConfig(TechInfo, metaclass=abc.ABCMeta):
         # type: (int) -> List[Tuple[str, str]]
         return self.config['res_metal_layer_table'][layer_id]
 
+    def get_metal_dummy_layers(self, layer_id):
+        # type: (int) -> List[Tuple[str, str]]
+        return self.config['metal_dummy_table'][layer_id]
+
     def use_flip_parity(self):
         # type: () -> bool
         return self.config['use_flip_parity']
@@ -170,6 +174,7 @@ class TechInfoConfig(TechInfo, metaclass=abc.ABCMeta):
         sp = via_config['sp']
         sp2_list = via_config.get('sp2', None)
         sp3_list = via_config.get('sp3', None)
+        sp6_list = via_config.get('sp6', None)
 
         if not is_bot or via_config['bot_enc'] is None:
             enc_data = via_config['top_enc']
@@ -196,13 +201,15 @@ class TechInfoConfig(TechInfo, metaclass=abc.ABCMeta):
                 sp2_list = [(spy, spx) for spx, spy in sp2_list]
             if sp3_list is not None:
                 sp3_list = [(spy, spx) for spx, spy in sp3_list]
+            if sp6_list is not None:
+                sp6_list = [(spy, spx) for spx, spy in sp6_list]
             if arr_enc is not None:
                 arr_enc = [(yv, xv) for xv, yv in arr_enc]
             if arr_test_tmp is not None:
                 def arr_test(nrow, ncol):
                     return arr_test_tmp(ncol, nrow)
 
-        return sp, sp2_list, sp3_list, dim, enc_cur, arr_enc, arr_test
+        return sp, sp2_list, sp3_list, sp6_list, dim, enc_cur, arr_enc, arr_test
 
     def _space_helper(self, config_name, layer_type, width):
         sp_min_config = self.config[config_name]
