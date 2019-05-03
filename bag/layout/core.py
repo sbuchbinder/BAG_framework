@@ -959,7 +959,6 @@ class TechInfo(object, metaclass=abc.ABCMeta):
         enc2_x = (wtop_norm - warr_norm) // 2 * res
         enc2_y = (htop_norm - harr_norm) // 2 * res
 
-
         # compute EM rule dimensions
         if bot_dir == 'x':
             bw, tw = hbot_norm * res, wtop_norm * res
