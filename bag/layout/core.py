@@ -690,7 +690,7 @@ class TechInfo(object, metaclass=abc.ABCMeta):
                 bot_drc_info = self.get_via_drc_info(vname, vtype, bmtype, bb, True)
                 top_drc_info = self.get_via_drc_info(vname, vtype, tmtype, tb, False)
                 sp, sp2_list, sp3_list, sp6_list, dim, encb, arr_encb, arr_testb = bot_drc_info
-                _, _, _, _, enct, arr_enct, arr_testt = top_drc_info
+                _, _, _, _, _, enct, arr_enct, arr_testt = top_drc_info
             except ValueError:
                 continue
             # optional sp2/sp3 rules enable different spacing rules for via arrays with 2 or 3 neighbors
