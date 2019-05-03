@@ -3673,7 +3673,7 @@ class TemplateBase(DesignMaster, metaclass=abc.ABCMeta):
 
         bound_box = bound_box.expand(dx=-x_margin, dy=-y_margin, unit_mode=True)
 
-        tr_off = int(self.grid.coord_to_track(layer_id, tr_offset, unit_mode=True))
+        tr_off = self.grid.coord_to_track(layer_id, tr_offset, unit_mode=True)
         htr0 = int(tr_off * 2) + 1 + fill_width + fill_space
         htr_pitch = 2 * (fill_width + fill_space)
         is_horizontal = (self.grid.get_direction(layer_id) == 'x')

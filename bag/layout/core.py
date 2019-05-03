@@ -136,6 +136,23 @@ class TechInfo(object, metaclass=abc.ABCMeta):
         return []
 
     @abc.abstractmethod
+    def get_metal_dummy_layers(self, layer_id):
+        # type: (int) -> List[Tuple[str, str]]
+        """Returns a list of layers associated with the given metal dummy layers.
+
+        Parameters
+        ----------
+        layer_id : int
+            the metal layer ID.
+
+        Returns
+        -------
+        res_list : List[Tuple[str, str]]
+            list of metal dummy layers.
+        """
+        return []
+
+    @abc.abstractmethod
     def add_cell_boundary(self, template, box):
         """Adds a cell boundary object to the given template.
         
@@ -672,7 +689,7 @@ class TechInfo(object, metaclass=abc.ABCMeta):
                 # get space and enclosure rules for top and bottom layer
                 bot_drc_info = self.get_via_drc_info(vname, vtype, bmtype, bb, True)
                 top_drc_info = self.get_via_drc_info(vname, vtype, tmtype, tb, False)
-                sp, sp2_list, sp3_list, dim, encb, arr_encb, arr_testb = bot_drc_info
+                sp, sp2_list, sp3_list, sp6_list, dim, encb, arr_encb, arr_testb = bot_drc_info
                 _, _, _, _, enct, arr_enct, arr_testt = top_drc_info
             except ValueError:
                 continue
@@ -681,10 +698,12 @@ class TechInfo(object, metaclass=abc.ABCMeta):
                 sp2_list = [sp]
             if sp3_list is None:
                 sp3_list = sp2_list
+            if sp6_list is None:
+                sp6_list = sp3_list
 
             # Get minimum possible spacing between vias
             spx_min, spy_min = sp
-            for high_sp_list in (sp2_list, sp3_list):
+            for high_sp_list in (sp2_list, sp3_list, sp6_list):
                 for high_spx, high_spy in high_sp_list:
                     spx_min = min(spx_min, high_spx)
                     spy_min = min(spy_min, high_spy)
@@ -717,12 +736,14 @@ class TechInfo(object, metaclass=abc.ABCMeta):
             # one that maximizes the number of vias while meeting all rules
             for num, nx, ny in nxy_list:
                 # Determine whether we should be using sp/sp2/sp3 rules for the current via configuration
-                if nx == 2 and ny == 2:
-                    sp_combo = sp2_list
-                elif nx > 1 and ny > 1:
-                    sp_combo = sp3_list
-                else:
+                if (nx == 1 and ny >= 1) or (nx >= 1 and ny == 1):
                     sp_combo = [sp]
+                elif nx == 2 and ny == 2:
+                    sp_combo = sp2_list
+                elif nx >= 6 and ny >= 6:
+                    sp_combo = sp6_list
+                else:
+                    sp_combo = sp3_list
 
                 # DRC rules can typically be satisfied with a number of different spacing rules, so here we
                 # iterate over each to find the best one. Note that since we break out of the loop immediately upon
@@ -1123,6 +1144,10 @@ class DummyTechInfo(TechInfo):
         return 0
 
     def get_res_metal_layers(self, layer_id):
+        # type: (int) -> List[Tuple[str, str]]
+        return []
+
+    def get_metal_dummy_layers(self, layer_id):
         # type: (int) -> List[Tuple[str, str]]
         return []
 
