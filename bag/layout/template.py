@@ -1578,25 +1578,53 @@ class TemplateBase(DesignMaster, metaclass=abc.ABCMeta):
             else:
                 label = port.label
 
-        if net_name not in self._port_params:
-            self._port_params[net_name] = dict(label=label, pins={}, show=show)
+        for layer, pin_list in port._pin_dict.items():
 
-        port_params = self._port_params[net_name]
-        # check labels is consistent.
-        if port_params['label'] != label:
-            msg = 'Current port label = %s != specified label = %s'
-            raise ValueError(msg % (port_params['label'], label))
-        if port_params['show'] != show:
-            raise ValueError('Conflicting show port specification.')
+            for pin in pin_list:
+                if isinstance(pin, WireArray):
 
-        # export all port geometries
-        port_pins = port_params['pins']
-        for wire_arr in port:
-            layer_id = wire_arr.layer_id
-            if layer_id not in port_pins:
-                port_pins[layer_id] = [wire_arr]
-            else:
-                port_pins[layer_id].append(wire_arr)
+                    if net_name not in self._port_params:
+                        self._port_params[net_name] = dict(label=label, pins={}, show=show)
+
+                    port_params = self._port_params[net_name]
+                    # check labels is consistent.
+                    if port_params['label'] != label:
+                        msg = 'Current port label = %s != specified label = %s'
+                        raise ValueError(msg % (port_params['label'], label))
+                    if port_params['show'] != show:
+                        raise ValueError('Conflicting show port specification.')
+
+                    # export all port geometries
+                    port_pins = port_params['pins']
+
+                    layer_id = pin.layer_id
+                    if layer_id not in port_pins:
+                        port_pins[layer_id] = [pin]
+                    else:
+                        port_pins[layer_id].append(pin)
+
+                elif isinstance(pin, BBox):
+                    if net_name not in self._prim_port_params:
+                        self._prim_port_params[net_name] = dict(label=label, pins={}, show=show)
+
+                    port_params = self._prim_port_params[net_name]
+                    # check labels is consistent.
+                    if port_params['label'] != label:
+                        msg = 'Current port label = %s != specified label = %s'
+                        raise ValueError(msg % (port_params['label'], label))
+                    if port_params['show'] != show:
+                        raise ValueError('Conflicting show port specification.')
+
+                    # export all port geometries
+                    port_pins = port_params['pins']
+
+                    layer_id = self.grid.tech_info.get_layer_id(layer)
+                    if layer not in port_pins:
+                        port_pins[layer] = [pin]
+                    else:
+                        port_pins[layer].append(pin)
+                else:
+                    raise ValueError('Unknown pin type for pin %s' % pin)
 
     def add_pin_primitive(self, net_name, layer, bbox, label='', show=True):
         # type: (str, str, BBox, str, bool) -> None
