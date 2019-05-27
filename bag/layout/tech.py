@@ -157,11 +157,11 @@ class TechInfoConfig(TechInfo, metaclass=abc.ABCMeta):
             raise ValueError('Unsupported vname %s' % vname)
 
         via_config = via_config[vname]
-        if vtype == 'vrect' and vtype not in via_config:
+        if vtype.startswith('vrect') and vtype not in via_config:
             # trying vertical rectangle via, but it does not exist,
             # so try rotating horizontal rectangle instead
             rotate = True
-            vtype2 = 'hrect'
+            vtype2 = 'hrect' + vtype[5:]
         else:
             rotate = False
             vtype2 = vtype
