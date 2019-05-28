@@ -3826,7 +3826,7 @@ class TemplateBase(DesignMaster, metaclass=abc.ABCMeta):
         dim_tran = dim_tran1 - dim_tran0
         dim_long = dim_long1 - dim_long0
 
-        self.add_rect(tech_info.get_exclude_layer(layer_id), bound_box)
+        # self.add_rect(tech_info.get_exclude_layer(layer_id), bound_box)
         if dim_tran <= ip_margin or dim_long <= ip_margin_le:
             return
 
