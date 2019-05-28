@@ -13,6 +13,7 @@ import time
 import bisect
 import pickle
 from itertools import islice, product, chain
+import math
 
 import yaml
 import shapely.ops as shops
@@ -26,7 +27,7 @@ from ..io import get_encoding, open_file
 from .routing import Port, TrackID, WireArray
 from .routing.fill import UsedTracks, fill_symmetric_max_num_info, fill_symmetric_interval, \
     NoFillChoiceError
-from .objects import Instance, Rect, Via, Path
+from .objects import Instance, Rect, Via, Path, Polygon
 
 if TYPE_CHECKING:
     from bag.core import BagProject
@@ -1415,6 +1416,77 @@ class TemplateBase(DesignMaster, metaclass=abc.ABCMeta):
             the added path object.
         """
         self._layout.add_path(path)
+        lay_id = self.grid.tech_info.get_layer_id(path.layer[0])
+        res = self.grid.resolution
+
+        # record it as used tracks
+        [x0, y0], [x1, y1] = path.points_unit
+        y_low, y_high = min(y0, y1), max(y0, y1)
+        x_low, x_high = min(x0, x1), max(x0, x1)
+        if x_low == x0:
+            y_xlow, y_xhigh = y0, y1
+        else:
+            y_xlow, y_xhigh = y1, y0
+
+        width_unit = int(path.width / self.grid.resolution)
+        w2 = math.ceil(width_unit // 2)
+        wr2 = math.ceil(width_unit // math.sqrt(2))
+
+        if x0 == x1:
+            # 1. 90 degree cases
+            bbox = BBox(x0 - w2, y_low - w2, x0 + w2, y_high + w2, res, unit_mode=True)
+            self._used_tracks.record_box(lay_id, bbox, dx=0, dy=0, res=res)
+            # rect = Rect(path.layer, bbox)
+            # self._layout.add_rect(rect)
+        elif y0 == y1:
+            # 2. 0 degree cases
+            bbox = BBox(x_low - w2, y0 - w2, x_high + w2, y0 + w2, res, unit_mode=True)
+            self._used_tracks.record_box(lay_id, bbox, dx=0, dy=0, res=res)
+            # rect = Rect(path.layer, bbox)
+            # self._layout.add_rect(rect)
+        elif y_xlow == y_low:
+            # 3. 45 degree case
+            x_start, x_stop = x_low - wr2, x_high + wr2
+            y_start, y_stop = y_low - wr2, y_high + wr2
+            while True:
+                bbox = BBox(x_start, y_start, x_start + wr2, y_start + wr2, res, unit_mode=True)
+                self._used_tracks.record_box(lay_id, bbox, dx=0, dy=0, res=res)
+                # rect = Rect(path.layer, bbox)
+                # self._layout.add_rect(rect)
+                if x_start + wr2 >= x_stop:
+                    break
+                bbox = BBox(x_start, y_start + wr2, x_start + wr2, y_start + 2 * wr2, res, unit_mode=True)
+                self._used_tracks.record_box(lay_id, bbox, dx=0, dy=0, res=res)
+                # rect = Rect(path.layer, bbox)
+                # self._layout.add_rect(rect)
+                bbox = BBox(x_start + wr2, y_start, x_start + 2 * wr2, y_start + wr2, res, unit_mode=True)
+                self._used_tracks.record_box(lay_id, bbox, dx=0, dy=0, res=res)
+                # rect = Rect(path.layer, bbox)
+                # self._layout.add_rect(rect)
+                x_start += wr2
+                y_start += wr2
+        else:
+            # 4. 135 degree case
+            x_start, x_stop = x_low - wr2, x_high + wr2
+            y_start, y_stop = y_high + wr2, y_low - wr2
+            while True:
+                bbox = BBox(x_start, y_start - wr2, x_start + wr2, y_start, res, unit_mode=True)
+                self._used_tracks.record_box(lay_id, bbox, dx=0, dy=0, res=res)
+                # rect = Rect(path.layer, bbox)
+                # self._layout.add_rect(rect)
+                if x_start + wr2 >= x_stop:
+                    break
+                bbox = BBox(x_start, y_start - 2 * wr2, x_start + wr2, y_start - wr2, res, unit_mode=True)
+                self._used_tracks.record_box(lay_id, bbox, dx=0, dy=0, res=res)
+                # rect = Rect(path.layer, bbox)
+                # self._layout.add_rect(rect)
+                bbox = BBox(x_start + wr2, y_start - wr2, x_start + 2 * wr2, y_start, res, unit_mode=True)
+                self._used_tracks.record_box(lay_id, bbox, dx=0, dy=0, res=res)
+                # rect = Rect(path.layer, bbox)
+                # self._layout.add_rect(rect)
+                x_start += wr2
+                y_start -= wr2
+
         return path
 
     def add_polygon(self, polygon):

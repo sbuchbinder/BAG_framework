@@ -7,6 +7,7 @@ from typing import Dict, List, Iterator, Tuple, Optional, Union, Callable, Any
 
 import abc
 import math
+import numpy as np
 from itertools import chain
 
 import bag
@@ -717,8 +718,14 @@ class TechInfo(object, metaclass=abc.ABCMeta):
 
             # Allocate area in the bounding box for minimum enclosure, then find
             # maximum number of vias that can fit in the remaining area with the minimum spacing
-            nx_max = (w + spx_min - 2 * extx) // (dim[0] + spx_min)
-            ny_max = (h + spy_min - 2 * exty) // (dim[1] + spy_min)
+            if np.isinf(spx_min):
+                nx_max = 1 if (w - 2 * extx) // dim[0] else 0
+            else:
+                nx_max = (w + spx_min - 2 * extx) // (dim[0] + spx_min)
+            if np.isinf(spy_min):
+                ny_max = 1 if (h - 2 * exty) // dim[1] else 0
+            else:
+                ny_max = (h + spy_min - 2 * exty) // (dim[1] + spy_min)
 
             # Theoretically any combination of via array size from (1, 1) to (nx_max, ny_max) may actually
             # work within the given bound box. Here we enumerate a list all of these possible via combinations
