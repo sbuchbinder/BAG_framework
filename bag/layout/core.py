@@ -200,8 +200,14 @@ class TechInfo(object, metaclass=abc.ABCMeta):
         -------
         sp : Tuple[int, int]
             horizontal/vertical space between adjacent vias, in resolution units.
-        sp3 : Tuple[int, int] or None
+        sp2_list : List[Tuple[int, int]] or None
+            horizontal/vertical space between adjacent vias if the via has 2 or more neighbors.
+            None if no constraint.
+        sp3_list : List[Tuple[int, int]] or None
             horizontal/vertical space between adjacent vias if the via has 3 or more neighbors.
+            None if no constraint.
+        sp6_list : List[Tuple[int, int]] or None
+            horizontal/vertical space between adjacent vias if the via has 6 or more neighbors.
             None if no constraint.
         dim : Tuple[int, int]
             the via width/height in resolution units.
@@ -217,7 +223,7 @@ class TechInfo(object, metaclass=abc.ABCMeta):
             columns, and returns True if those numbers describe a "via array".
             None if no constraint.
         """
-        return (0, 0), (0, 0), (0, 0), [(0, 0)], None, None
+        return (0, 0), [(0, 0)], [(0, 0)], [(0, 0)], (0, 0), [(0, 0)], None, None
 
     @abc.abstractmethod
     def get_min_space(self, layer_type, width, unit_mode=False, same_color=False):
@@ -1165,7 +1171,7 @@ class DummyTechInfo(TechInfo):
         pass
 
     def get_via_drc_info(self, vname, vtype, mtype, mw_unit, is_bot):
-        return (0, 0), [(0, 0)], [(0, 0)], (0, 0), [(0, 0)], None, None
+        return (0, 0), [(0, 0)], [(0, 0)], [(0, 0)], (0, 0), [(0, 0)], None, None
 
     def get_min_space(self, layer_type, width, unit_mode=False, same_color=False):
         return 0
