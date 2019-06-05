@@ -150,6 +150,7 @@ class Calibre(VirtuosoChecker):
     def setup_lvs_flow(self, lib_name, cell_name, sch_view='schematic', lay_view='layout',
                        params=None, **kwargs):
         # type: (str, str, str, str, Optional[Dict[str, Any]], Any) -> Sequence[FlowInfo]
+
         run_dir = os.path.join(self.lvs_run_dir, lib_name, cell_name)
         os.makedirs(run_dir, exist_ok=True)
         lay_file, sch_file = self._get_lay_sch_files(run_dir)
@@ -173,8 +174,7 @@ class Calibre(VirtuosoChecker):
             copy_cmd = ['cp', gds_layout_path, os.path.abspath(lay_file)]
             flow_list.append((copy_cmd, copy_log_file, None, None, _all_pass))
 
-        cmd, log, env, cwd = self.setup_export_schematic(lib_name, cell_name, sch_file, sch_view,
-                                                         None)
+        cmd, log, env, cwd = self.setup_export_schematic(lib_name, cell_name, sch_file, sch_view, None)
         flow_list.append((cmd, log, env, cwd, _all_pass))
 
         lvs_params_actual = self.default_lvs_params.copy()
