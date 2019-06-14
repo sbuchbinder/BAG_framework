@@ -1617,8 +1617,10 @@ class TemplateBase(DesignMaster, metaclass=abc.ABCMeta):
 
                     # export all port geometries
                     port_pins = port_params['pins']
-
-                    layer_id = self.grid.tech_info.get_layer_id(layer)
+                    if isinstance(layer, tuple):
+                        layer_id = self.grid.tech_info.get_layer_id(layer[0])
+                    else:
+                        layer_id = self.grid.tech_info.get_layer_id(layer)
                     if layer not in port_pins:
                         port_pins[layer] = [pin]
                     else:
