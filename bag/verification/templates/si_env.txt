@@ -24,4 +24,7 @@ simLibName = "{{lib_name}}"
 incFILE = "{{source_added_file}}"
 cdlSimViewList = '("auCdl" "schematic")
 cdlSimStopList = '("auCdl")
-
+hnlMaxLineLength = 16000
+hnlMaxNameLength = 16000
+hnlMaxInstNameLength = 16000
+hnlMaxNetNameLength = 16000
